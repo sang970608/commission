@@ -1,8 +1,10 @@
 package com.example.commit.base;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.animation.Animation;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,5 +22,8 @@ public class base extends AppCompatActivity {
     }
     protected void Toast(Context context, String text){
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+    }
+    protected void progress(){
+        ProgressDialog progressDialog;
     }
 }

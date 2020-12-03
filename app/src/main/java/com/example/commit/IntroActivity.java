@@ -42,7 +42,7 @@ public class IntroActivity extends base {
     Animation Blink;
     Dialog dlg, logdlg;
     Session session;
-    LoginButton login;
+    Button login;
     private SessionCallback sessionCallback = new SessionCallback(this);
     private static final int PERMISSION_CODE = 100;
     private String[] PERMISSION = {
@@ -55,7 +55,6 @@ public class IntroActivity extends base {
         super.onCreate(savedInstanceState);
         Binding = DataBindingUtil.setContentView(this, R.layout.activity_intro);
         Blinking();
-        autoLogin();
 
         Binding.intro.setOnClickListener(Intro);
     }
@@ -108,6 +107,7 @@ public class IntroActivity extends base {
     private void login(){
         session = Session.getCurrentSession();
         session.addCallback(sessionCallback);
+        autoLogin();
         logDia();
     }
     private void logDia(){

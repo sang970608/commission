@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.commit.MainActivity;
+import com.example.commit.ProfileActivity;
 import com.kakao.auth.ISessionCallback;
 import com.kakao.network.ErrorResult;
 import com.kakao.sdk.auth.LoginClient;
@@ -52,10 +53,15 @@ public class SessionCallback implements ISessionCallback {
 
                     @Override
                     public void onSuccess(MeV2Response result) {
-                        long kakaoAccount = result.getId();
-                        Log.d(TAG, "카카오 ID: " + kakaoAccount);
-                        Intent intent = new Intent(mcontext, MainActivity.class);
-                        intent.putExtra("user", kakaoAccount);
+                        long kakaoId = result.getId();
+                        UserAccount kakaoAccount = result.getKakaoAccount();
+                        String kakaoEmail = kakaoAccount.getEmail();
+
+                        Log.d(TAG, "카카오 ID: " + kakaoId);
+                        Log.d(TAG, "email: " + kakaoEmail);
+                        Intent intent = new Intent(mcontext, ProfileActivity.class);
+                        intent.putExtra("user", kakaoId);
+                        intent.putExtra("email", kakaoEmail);
                         mcontext.startActivity(intent);
                     }
                 });
