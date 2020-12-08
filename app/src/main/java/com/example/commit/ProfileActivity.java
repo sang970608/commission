@@ -95,6 +95,7 @@ public class ProfileActivity extends base {
                             uid = firebaseUser.getUid();
                             UserModel userModel = new UserModel();
                             userModel.email = email;
+                            userModel.kakao = user;
                             userModel.uid = uid;
                             userModel.nick = Binding.profileNickEdit.getText().toString();
                             userModel.info = Binding.profileInfoEdit.getText().toString();
@@ -139,6 +140,7 @@ public class ProfileActivity extends base {
                             UserModel userModel = new UserModel();
                             userModel.email = email;
                             userModel.uid = uid;
+                            userModel.kakao = user;
                             userModel.nick = Binding.profileNickEdit.getText().toString();
                             userModel.info = Binding.profileInfoEdit.getText().toString();
                             userModel.pass = pass;

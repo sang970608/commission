@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.example.commit.IntroActivity;
 import com.example.commit.MainActivity;
 import com.example.commit.ProfileActivity;
 import com.kakao.auth.ISessionCallback;
@@ -18,7 +19,7 @@ import com.kakao.usermgmt.response.model.UserAccount;
 import com.kakao.util.OptionalBoolean;
 import com.kakao.util.exception.KakaoException;
 
-public class SessionCallback implements ISessionCallback {
+public class SessionCallback extends IntroActivity implements ISessionCallback {
     Context mcontext;
     String TAG = "KAKAO API";
 
@@ -59,10 +60,19 @@ public class SessionCallback implements ISessionCallback {
 
                         Log.d(TAG, "카카오 ID: " + kakaoId);
                         Log.d(TAG, "email: " + kakaoEmail);
-                        Intent intent = new Intent(mcontext, ProfileActivity.class);
-                        intent.putExtra("user", kakaoId);
-                        intent.putExtra("email", kakaoEmail);
-                        mcontext.startActivity(intent);
+                        if (auto() == true){
+                            Intent intent = new Intent(mcontext, ProfileActivity.class);
+                            intent.putExtra("user", kakaoId);
+                            intent.putExtra("email", kakaoEmail);
+                            mcontext.startActivity(intent);
+                        }
+                        else if (auto() == false){
+                            Intent intent = new Intent(mcontext, MainActivity.class);
+                            intent.putExtra("user", kakaoId);
+                            mcontext.startActivity(intent);
+                        } else {
+                            Toast(getApplication(), "로그인이 실패하였습니다.");
+                        }
                     }
                 });
     }

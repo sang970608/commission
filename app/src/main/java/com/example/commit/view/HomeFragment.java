@@ -1,5 +1,6 @@
 package com.example.commit.view;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,6 +33,13 @@ public class HomeFragment extends Fragment {
         homeRecentlyFragment = new HomeRecentlyFragment();
         transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.home_content, homeWeakFragment).commitAllowingStateLoss();
+        Binding.homeUploadBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), BoardActivity.class);
+                startActivity(intent);
+            }
+        });
 
         Binding.homeWeak.setOnClickListener(new View.OnClickListener() {
             @Override

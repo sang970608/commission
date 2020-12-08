@@ -43,6 +43,7 @@ public class IntroActivity extends base {
     Dialog dlg, logdlg;
     Session session;
     Button login;
+    Map<String, String> extraParams = new HashMap<>();
     private SessionCallback sessionCallback = new SessionCallback(this);
     private static final int PERMISSION_CODE = 100;
     private String[] PERMISSION = {
@@ -59,18 +60,21 @@ public class IntroActivity extends base {
         Binding.intro.setOnClickListener(Intro);
     }
     private void autoLogin(){
-        Map<String, String> extraParams = new HashMap<>();
         extraParams.put(StringSet.auto_login, "true");
         Session.getCurrentSession().open(AuthType.KAKAO_TALK_ONLY, this, extraParams); //자동 로그인
+        Log.e("tag", extraParams.get(StringSet.auto_login));
+    }
+    protected boolean auto(){
+        return Boolean.parseBoolean(extraParams.get(StringSet.auto_login));
     }
     View.OnClickListener Intro = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!hasPermissions(IntroActivity.this, PERMISSION)){
-                ActivityCompat.requestPermissions(IntroActivity.this, PERMISSION, PERMISSION_CODE);
-            }else {
-                login();
-            }
+        if (!hasPermissions(IntroActivity.this, PERMISSION)){
+            ActivityCompat.requestPermissions(IntroActivity.this, PERMISSION, PERMISSION_CODE);
+        }else {
+            login();
+        }
         }
     };
     private boolean hasPermissions(Context context, String... permissions){

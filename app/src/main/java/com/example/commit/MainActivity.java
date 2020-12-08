@@ -1,10 +1,12 @@
 package com.example.commit;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +17,13 @@ import com.example.commit.view.MypageFragment;
 import com.example.commit.view.NoticeFragment;
 import com.example.commit.view.OfferFragment;
 import com.example.commit.view.SearchFragment;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding Binding;
@@ -25,12 +34,14 @@ public class MainActivity extends AppCompatActivity {
     private OfferFragment offerFragment;
     private MypageFragment mypageFragment;
     private FragmentTransaction transaction;
+    private String uid, id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-
+        Intent intent = new Intent();
+        id = intent.getStringExtra("user");
         fragmentManager = getSupportFragmentManager();
         homeFragment = new HomeFragment();
         searchFragment = new SearchFragment();
@@ -39,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         mypageFragment = new MypageFragment();
         transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.main_content, homeFragment).commitAllowingStateLoss();
+        getUid();
 
         Binding.home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,5 +112,15 @@ public class MainActivity extends AppCompatActivity {
                 transaction.replace(R.id.main_content, mypageFragment).commitAllowingStateLoss();
             }
         });
+    }
+    private void getUid(){
+
+        FirebaseFirestore.getInstance().collection("user").equals(id);
+//        FirebaseFirestore.getInstance().collection("user").addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+//                uid = value.getDocuments().toString();
+//            }
+//        });
     }
 }

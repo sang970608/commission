@@ -9,4 +9,5 @@ public class UserModel {
     public String img;
     public String date;
     public String time;
+    public String kakao;
 }
