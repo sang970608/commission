@@ -25,6 +25,7 @@ import com.example.commit.data.Board;
 import com.example.commit.data.UserModel;
 import com.example.commit.databinding.ActivityBoardBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -40,8 +41,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.kakao.sdk.user.model.User;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,19 +54,20 @@ import java.util.Date;
 public class BoardActivity extends base {
     ActivityBoardBinding Binding;
     String title, tag;
+    Bitmap bitmap;
     boolean onlyme, capture;
     private Uri filepath;
     private static final int REQUEST_CODE = 0;
     String TAG = "Board";
     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     DatabaseReference databaseReference = firebaseDatabase.getReference();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageReference = storage.getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Binding = DataBindingUtil.setContentView(this, R.layout.activity_board);
-
 
         Binding.boardOnlymeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -100,8 +106,27 @@ public class BoardActivity extends base {
             }
         });
     }
-    private void Register(){
+    private void RegisterImg(){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+        UploadTask uploadTask = storageReference.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast(BoardActivity.this, "이미지 업로드 실패");
+            }
+        });
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast(BoardActivity.this, "이미지 업로드 성공");
+            }
+        });
 
+    }
+    private void Register(){
+        RegisterImg();
         Board board = new Board();
         board.title = Binding.boardEdit.getText().toString();
         board.onlyme = onlyme;
@@ -141,7 +166,7 @@ public class BoardActivity extends base {
                     in.close();
                     filepath = data.getData();
                     Log.e(TAG, String.valueOf(filepath));
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filepath);
+                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filepath);
                     Binding.boardImg.setImageBitmap(bitmap);
                 } catch (Exception e) {
                 }

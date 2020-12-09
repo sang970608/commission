@@ -3,6 +3,8 @@ package com.example.commit.data;
 import android.app.Application;
 import android.content.Context;
 
+//import androidx.multidex.MultiDex;
+
 import com.kakao.auth.ApprovalType;
 import com.kakao.auth.AuthType;
 import com.kakao.auth.IApplicationConfig;
@@ -25,6 +27,7 @@ public class GlobalApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+//        MultiDex.install(this);
 
         // Kakao Sdk 초기화
         KakaoSDK.init(new KakaoSDKAdapter());

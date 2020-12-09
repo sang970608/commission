@@ -9,8 +9,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import com.example.commit.data.UserModel;
 import com.example.commit.databinding.ActivityMainBinding;
 import com.example.commit.view.HomeFragment;
 import com.example.commit.view.MypageFragment;
@@ -25,6 +27,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding Binding;
     private FragmentManager fragmentManager;
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private MypageFragment mypageFragment;
     private FragmentTransaction transaction;
     private String uid, id;
+    ArrayList<String> arrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         mypageFragment = new MypageFragment();
         transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.main_content, homeFragment).commitAllowingStateLoss();
-        getUid();
+//        getUid();
 
         Binding.home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,14 +118,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void getUid(){
-
-        FirebaseFirestore.getInstance().collection("user").equals(id);
+//    private void getUid(){
 //        FirebaseFirestore.getInstance().collection("user").addSnapshotListener(new EventListener<QuerySnapshot>() {
 //            @Override
 //            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-//                uid = value.getDocuments().toString();
+//                UserModel user = value.toObjects(UserModel.class);
+//                arrayList.add(user.nick);
+//                Log.e("tag", arrayList.get(0));
 //            }
 //        });
-    }
+//    }
 }

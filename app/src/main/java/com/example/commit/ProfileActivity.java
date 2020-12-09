@@ -27,6 +27,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -44,7 +45,8 @@ public class ProfileActivity extends base {
     FirebaseAuth firebaseAuth;
     String TAG = "FireBase";
     String user, email, uid;
-    FirebaseFirestore firebaseFirestore;
+    FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    DatabaseReference databaseReference = firebaseDatabase.getReference();
     private Uri filepath;
 
     @Override
@@ -110,51 +112,12 @@ public class ProfileActivity extends base {
                             String filename = format.format(date) + ".png";
                             userModel.img = "images/" + filename;
 
-
-                            firebaseFirestore = FirebaseFirestore.getInstance();
-                            firebaseFirestore.collection("user").add(userModel)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.e(TAG, documentReference.getId());
-                                        }
-                                    });
-                            firebaseFirestore.collection("user").get()
-                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                for (QueryDocumentSnapshot document : task.getResult()){
-                                                    Log.e(TAG, document.getData().toString());
-                                                }
-                                            } else Log.e(TAG, task.getException().getMessage());
-                                        }
-                                    });
+                            databaseReference.child(uid).setValue(userModel);
 
                         } else if (task.isCanceled()){
-                            Toast(ProfileActivity.this, "취소됨");
+                            Toast(ProfileActivity.this, "취소되었습니다.");
                         } else if (task.isComplete()){
-                            Log.e(TAG, task.getException().getMessage());
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                            uid = firebaseUser.getUid();
-                            UserModel userModel = new UserModel();
-                            userModel.email = email;
-                            userModel.uid = uid;
-                            userModel.kakao = user;
-                            userModel.nick = Binding.profileNickEdit.getText().toString();
-                            userModel.info = Binding.profileInfoEdit.getText().toString();
-                            userModel.pass = pass;
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                            SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-                            Date date = new Date();
-                            String getDate = format.format(date);
-                            String getTime = formatter.format(date);
-                            userModel.date = getDate;
-                            userModel.time = getTime;
-                            String filename = format.format(date) + ".png";
-                            userModel.img = "images/" + filename;
-                            firebaseFirestore = FirebaseFirestore.getInstance();
-                            firebaseFirestore.collection("user").document(uid).set(userModel);
+                            Toast(ProfileActivity.this, "계정이 이미 있습니다.");
                         }
                     }
                 });
