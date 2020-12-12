@@ -1,6 +1,5 @@
 package com.example.commit;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,30 +10,26 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.example.commit.base.base;
+import com.example.commit.data.Commision;
+import com.example.commit.data.CommisionDialog;
 import com.example.commit.data.UserModel;
-import com.example.commit.databinding.ActivityProfileBinding;
-import com.example.commit.view.BoardActivity;
+import com.example.commit.databinding.ActivityProfileEditBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.ActionCodeSettings;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -42,10 +37,9 @@ import com.google.firebase.storage.UploadTask;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
-public class ProfileActivity extends base {
-    ActivityProfileBinding Binding;
+public class ProfileEditActivity extends base {
+    ActivityProfileEditBinding Binding;
     private static final int REQUEST_CODE = 0;
     FirebaseAuth firebaseAuth;
     String TAG = "FireBase";
@@ -58,23 +52,28 @@ public class ProfileActivity extends base {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Binding = DataBindingUtil.setContentView(this, R.layout.activity_profile);
+        Binding = DataBindingUtil.setContentView(this, R.layout.activity_profile_edit);
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        if (firebaseAuth.getCurrentUser() != null){
-            Intent intents = getIntent();
-            email = intents.getExtras().getString("email");
-            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
-            finish();
-        }
         Intent intent = getIntent();
         email = intent.getExtras().getString("email");
         Binding.profilePicturePicture.setOnClickListener(Gallery);
         Binding.profileBtn.setOnClickListener(profileFinish);
-
+        Binding.profileTrade.setOnClickListener(profileTrade);
+        Binding.profileCommision.setOnClickListener(profileCommision);
     }
+    TextView.OnClickListener profileTrade = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+        }
+    };
+    TextView.OnClickListener profileCommision = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            CommisionDialog commisionDialog = new CommisionDialog(ProfileEditActivity.this);
+            commisionDialog.commisionDia(email);
+        }
+    };
     ImageView.OnClickListener Gallery = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -103,7 +102,7 @@ public class ProfileActivity extends base {
             Toast(this, "프로필 사진이 비어있습니다.");
         } else {
             Register();
-            Intent intents = new Intent(ProfileActivity.this, MainActivity.class);
+            Intent intents = new Intent(ProfileEditActivity.this, MainActivity.class);
             intents.putExtra("email", email);
             startActivity(intents);
             finish();
@@ -111,68 +110,23 @@ public class ProfileActivity extends base {
     }
     private void Register(){
         final String pass = Binding.profilePassEdit.getText().toString();
-        Log.e("tag", pass);
-        firebaseAuth.createUserWithEmailAndPassword(email, pass)
-                .addOnCompleteListener(ProfileActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()){
-                            Log.e("tag", "성공");
-                            RegisterImg();
-                            Toast(ProfileActivity.this, "성공");
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                            uid = firebaseUser.getUid();
-                            UserModel userModel = new UserModel();
-                            userModel.email = email;
-                            userModel.kakao = user;
-                            userModel.uid = uid;
-                            userModel.nick = Binding.profileNickEdit.getText().toString();
-                            userModel.info = Binding.profileInfoEdit.getText().toString();
-                            userModel.pass = pass;
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                            SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-                            SimpleDateFormat formats = new SimpleDateFormat("yyyyMMHH_mmss");
-                            Date date = new Date();
-                            String getDate = format.format(date);
-                            String getTime = formatter.format(date);
-                            userModel.date = getDate;
-                            userModel.time = getTime;
-                            String filename = formats.format(date) + ".png";
-                            userModel.img = "profile/" + filename;
-
-                            String[] emails = email.split("@");
-                            databaseReference.child(emails[0]).setValue(userModel);
-
-                        } else if (task.isCanceled()){
-                            Toast(ProfileActivity.this, "취소되었습니다.");
-                            Log.e("tag", "실패");
-                        } else if (task.isComplete()){
-                            Log.e("tag", "완료");
-                            RegisterImg();
-                            Toast(ProfileActivity.this, "성공");
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                            uid = firebaseUser.getUid();
-                            UserModel userModel = new UserModel();
-                            userModel.email = email;
-                            userModel.kakao = user;
-                            userModel.uid = uid;
-                            userModel.nick = Binding.profileNickEdit.getText().toString();
-                            userModel.info = Binding.profileInfoEdit.getText().toString();
-                            userModel.pass = pass;
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                            SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-                            Date date = new Date();
-                            String getDate = format.format(date);
-                            String getTime = formatter.format(date);
-                            userModel.date = getDate;
-                            userModel.time = getTime;
-                            String filename = format.format(date) + ".png";
-                            userModel.img = "profile/" + filename;
-                            String[] emails = email.split("@");
-                            databaseReference.child(emails[0]).setValue(userModel);
-                        }
-                    }
-                });
+        RegisterImg();
+        UserModel userModel = new UserModel();
+        userModel.nick = Binding.profileNickEdit.getText().toString();
+        userModel.info = Binding.profileInfoEdit.getText().toString();
+        userModel.pass = pass;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
+        SimpleDateFormat formats = new SimpleDateFormat("yyyyMMHH_mmss");
+        Date date = new Date();
+        String getDate = format.format(date);
+        String getTime = formatter.format(date);
+        userModel.date = getDate;
+        userModel.time = getTime;
+        String filename = formats.format(date) + ".png";
+        userModel.img = "profile/" + filename;
+        String[] emails = email.split("@");
+        databaseReference.child(emails[0]).setValue(userModel);
     }
     private void RegisterImg(){
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMHH_mmss");
@@ -182,13 +136,13 @@ public class ProfileActivity extends base {
         storageReference.putFile(filepath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast(ProfileActivity.this, "성공했습니다.");
+                Toast(ProfileEditActivity.this, "성공했습니다.");
             }
         })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast(ProfileActivity.this, "실패했습니다.");
+                        Toast(ProfileEditActivity.this, "실패했습니다.");
                     }
                 });
     }

@@ -3,10 +3,19 @@ package com.example.commit.data;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.example.commit.IntroActivity;
 import com.example.commit.MainActivity;
 import com.example.commit.ProfileActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kakao.auth.ISessionCallback;
 import com.kakao.network.ErrorResult;
 import com.kakao.sdk.auth.LoginClient;
@@ -19,9 +28,10 @@ import com.kakao.usermgmt.response.model.UserAccount;
 import com.kakao.util.OptionalBoolean;
 import com.kakao.util.exception.KakaoException;
 
-public class SessionCallback extends IntroActivity implements ISessionCallback {
+public class SessionCallback implements ISessionCallback {
     Context mcontext;
     String TAG = "KAKAO API";
+    boolean flag;
 
     public SessionCallback(Context context) {
         mcontext = context;
@@ -54,25 +64,16 @@ public class SessionCallback extends IntroActivity implements ISessionCallback {
 
                     @Override
                     public void onSuccess(MeV2Response result) {
-                        long kakaoId = result.getId();
+                        final long kakaoId = result.getId();
                         UserAccount kakaoAccount = result.getKakaoAccount();
-                        String kakaoEmail = kakaoAccount.getEmail();
+                        final String kakaoEmail = kakaoAccount.getEmail();
 
-                        Log.d(TAG, "카카오 ID: " + kakaoId);
-                        Log.d(TAG, "email: " + kakaoEmail);
-                        if (auto() == true){
-                            Intent intent = new Intent(mcontext, ProfileActivity.class);
-                            intent.putExtra("user", kakaoId);
-                            intent.putExtra("email", kakaoEmail);
-                            mcontext.startActivity(intent);
-                        }
-                        else if (auto() == false){
-                            Intent intent = new Intent(mcontext, MainActivity.class);
-                            intent.putExtra("user", kakaoId);
-                            mcontext.startActivity(intent);
-                        } else {
-                            Toast(getApplication(), "로그인이 실패하였습니다.");
-                        }
+                        Log.d("ID", "카카오 ID: " + kakaoId);
+                        Log.d("email", "email: " + kakaoEmail);
+
+                        Intent intent = new Intent(mcontext, ProfileActivity.class);
+                        intent.putExtra("email", kakaoEmail);
+                        mcontext.startActivity(intent);
                     }
                 });
     }

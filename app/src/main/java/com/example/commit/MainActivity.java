@@ -38,15 +38,15 @@ public class MainActivity extends AppCompatActivity {
     private OfferFragment offerFragment;
     private MypageFragment mypageFragment;
     private FragmentTransaction transaction;
-    private String uid, id;
-    ArrayList<String> arrayList = new ArrayList<>();
+    private String email;
+    Bundle bundles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        Intent intent = new Intent();
-        id = intent.getStringExtra("user");
+        Intent intent = getIntent();
+        email = intent.getExtras().getString("email");
         fragmentManager = getSupportFragmentManager();
         homeFragment = new HomeFragment();
         searchFragment = new SearchFragment();
@@ -55,7 +55,14 @@ public class MainActivity extends AppCompatActivity {
         mypageFragment = new MypageFragment();
         transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.main_content, homeFragment).commitAllowingStateLoss();
-//        getUid();
+        bundles = new Bundle();
+        bundles.putString("email", email);
+        homeFragment.setArguments(bundles);
+        Log.e("main", "" + email);
+        searchFragment.setArguments(bundles);
+        noticeFragment.setArguments(bundles);
+        offerFragment.setArguments(bundles);
+        mypageFragment.setArguments(bundles);
 
         Binding.home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,14 +125,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-//    private void getUid(){
-//        FirebaseFirestore.getInstance().collection("user").addSnapshotListener(new EventListener<QuerySnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-//                UserModel user = value.toObjects(UserModel.class);
-//                arrayList.add(user.nick);
-//                Log.e("tag", arrayList.get(0));
-//            }
-//        });
-//    }
 }

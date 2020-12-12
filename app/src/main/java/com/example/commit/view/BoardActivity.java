@@ -47,6 +47,7 @@ import com.google.firebase.storage.UploadTask;
 import com.kakao.sdk.user.model.User;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,13 +63,15 @@ public class BoardActivity extends base {
     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     DatabaseReference databaseReference = firebaseDatabase.getReference();
     FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageReference = storage.getReference();
+    String filename, email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Binding = DataBindingUtil.setContentView(this, R.layout.activity_board);
 
+        Intent intent = getIntent();
+        email = intent.getExtras().getString("email");
         Binding.boardOnlymeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -107,23 +110,22 @@ public class BoardActivity extends base {
         });
     }
     private void RegisterImg(){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-        UploadTask uploadTask = storageReference.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast(BoardActivity.this, "이미지 업로드 실패");
-            }
-        });
-        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMHH_mmss");
+        Date now = new Date();
+        filename = format.format(now) + ".png";
+        StorageReference storageReference = storage.getReferenceFromUrl("gs://commission-b4348.appspot.com").child("images/" + filename);
+        storageReference.putFile(filepath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast(BoardActivity.this, "이미지 업로드 성공");
+                Toast(BoardActivity.this, "성공했습니다.");
             }
-        });
-
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast(BoardActivity.this, "실패했습니다.");
+                    }
+                });
     }
     private void Register(){
         RegisterImg();
@@ -131,30 +133,18 @@ public class BoardActivity extends base {
         board.title = Binding.boardEdit.getText().toString();
         board.onlyme = onlyme;
         board.capture = capture;
-        board.img = "" + filepath;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
         Date date = new Date();
         String getDate = format.format(date);
         String getTime = formatter.format(date);
+        board.img = "images/" + filename;
         board.date = getDate;
         board.time = getTime;
 
-        databaseReference.child("board").push().setValue(board);
+        String[] emails = email.split("@");
+        databaseReference.child(emails[0]).child("board").push().setValue(board);
     }
-//    private void getUid(){
-//        databaseReference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                snapshot.child("user").;
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
