@@ -50,6 +50,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class BoardActivity extends base {
@@ -57,6 +58,7 @@ public class BoardActivity extends base {
     String title, tag;
     Bitmap bitmap;
     boolean onlyme, capture;
+    int like = 0;
     private Uri filepath;
     private static final int REQUEST_CODE = 0;
     String TAG = "Board";
@@ -110,7 +112,7 @@ public class BoardActivity extends base {
         });
     }
     private void RegisterImg(){
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMHH_mmss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_mmss");
         Date now = new Date();
         filename = format.format(now) + ".png";
         StorageReference storageReference = storage.getReferenceFromUrl("gs://commission-b4348.appspot.com").child("images/" + filename);
@@ -129,21 +131,34 @@ public class BoardActivity extends base {
     }
     private void Register(){
         RegisterImg();
-        Board board = new Board();
-        board.title = Binding.boardEdit.getText().toString();
-        board.onlyme = onlyme;
-        board.capture = capture;
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-        Date date = new Date();
-        String getDate = format.format(date);
-        String getTime = formatter.format(date);
-        board.img = "images/" + filename;
-        board.date = getDate;
-        board.time = getTime;
+        final Board board = new Board();
+        final String[] emails = email.split("@");
+        databaseReference.child("UID").child(emails[0]).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserModel userModel = snapshot.getValue(UserModel.class);
+                board.nick = userModel.nick;
+                board.ssum = userModel.img;
+                board.title = Binding.boardEdit.getText().toString();
+                board.onlyme = onlyme;
+                board.capture = capture;
+                board.like = like;
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
+                Date date = new Date();
+                String getDate = format.format(date);
+                String getTime = formatter.format(date);
+                board.img = "images/" + filename;
+                board.date = getDate;
+                board.time = getTime;
+                databaseReference.child("UID").child(emails[0]).child("board").push().setValue(board);
+            }
 
-        String[] emails = email.split("@");
-        databaseReference.child(emails[0]).child("board").push().setValue(board);
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

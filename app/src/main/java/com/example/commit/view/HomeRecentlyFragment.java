@@ -56,79 +56,45 @@ public class HomeRecentlyFragment extends Fragment {
         Bundle bundle = getArguments();
         email = bundle.getString("email");
         emails = email.split("@");
-        getProfile();
-//        getProfile();
+        getBoard();
 
         return Binding.getRoot();
     }
-    private void getProfile(){
-        myRef.child(emails[0]).addChildEventListener(new ChildEventListener() {
+    private void getBoard(){
+        myRef.child("UID").child(emails[0]).child("board").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if (key.contains(snapshot.getKey())){
+                    titles.clear();
+                    imgs.clear();
                     nicks.clear();
                     ssum.clear();
+                    key.clear();
                 }
-                UserModel userModel = snapshot.getValue(UserModel.class);
-                nicks.add(userModel.nick);
-                ssum.add(userModel.img);
-                Log.e("tag", String.valueOf(snapshot.getValue()));
+                Board board = snapshot.getValue(Board.class);
+                titles.add(board.title);
+                imgs.add(board.img);
+                nicks.add(board.nick);
+                ssum.add(board.ssum);
+                Log.e("ssum", ssum.get(0));
+                key.add(snapshot.getKey());
                 boardRecycle();
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
             }
-
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
             }
-
             @Override
             public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }
-//    private void getBoard(){
-//        myRef.child(emails[0]).child("board").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-//                if (key.contains(snapshot.getKey())){
-//                    titles.clear();
-//                    imgs.clear();
-//                    nicks.clear();
-//                    ssum.clear();
-//                    key.clear();
-//                }
-//                Board board = snapshot.getValue(Board.class);
-//                titles.add(board.title);
-//                imgs.add(board.img);
-//                key.add(snapshot.getKey());
-//                boardRecycle();
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-//            }
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-//            }
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-//            }
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//            }
-//        });
-//    }
     private void boardRecycle(){
         Binding.homeRecentlyContent.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());

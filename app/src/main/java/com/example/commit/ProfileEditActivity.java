@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,11 +29,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.kakao.sdk.user.model.User;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -43,11 +48,14 @@ public class ProfileEditActivity extends base {
     private static final int REQUEST_CODE = 0;
     FirebaseAuth firebaseAuth;
     String TAG = "FireBase";
+    String[] emails;
     String user, email, uid, filename;
     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     FirebaseStorage storage = FirebaseStorage.getInstance();
     DatabaseReference databaseReference = firebaseDatabase.getReference();
     private Uri filepath;
+    DatabaseReference myRef = FirebaseDatabase.getInstance().getReference();
+    StorageReference storageReference = storage.getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,7 @@ public class ProfileEditActivity extends base {
 
         Intent intent = getIntent();
         email = intent.getExtras().getString("email");
+        getValue();
         Binding.profilePicturePicture.setOnClickListener(Gallery);
         Binding.profileBtn.setOnClickListener(profileFinish);
         Binding.profileTrade.setOnClickListener(profileTrade);
@@ -145,6 +154,37 @@ public class ProfileEditActivity extends base {
                         Toast(ProfileEditActivity.this, "실패했습니다.");
                     }
                 });
+    }
+    private void getValue(){
+        emails = email.split("@");
+        myRef.child("UID").child(emails[0]).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserModel user = snapshot.getValue(UserModel.class);
+                Binding.profileNickEdit.setText(user.nick);
+                Binding.profileInfoEdit.setText(user.info);
+                StorageReference ssumRef = storageReference.child(user.img);
+                long ONE_MEGA = 1024 * 1024;
+                ssumRef.getBytes(ONE_MEGA).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        Binding.profilePicturePicture.setImageBitmap(bmp);
+                    }
+                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(ProfileEditActivity.this, "실패했습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

@@ -109,8 +109,34 @@ public class ProfileActivity extends base {
             finish();
         }
     }
+    private void profileRegister(FirebaseAuth firebaseAuth, String pass){
+        RegisterImg();
+//        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+//        uid = firebaseUser.getUid();
+        UserModel userModel = new UserModel();
+        userModel.email = email;
+//        userModel.kakao = user;
+//        userModel.uid = uid;
+        userModel.nick = Binding.profileNickEdit.getText().toString();
+        userModel.info = Binding.profileInfoEdit.getText().toString();
+        userModel.pass = pass;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
+        SimpleDateFormat formats = new SimpleDateFormat("yyyyMMdd_mmss");
+        Date date = new Date();
+        String getDate = format.format(date);
+        String getTime = formatter.format(date);
+        userModel.date = getDate;
+        userModel.time = getTime;
+        String filename = formats.format(date) + ".png";
+        userModel.img = "images/" + filename;
+
+        String[] emails = email.split("@");
+        databaseReference.child("UID").child(emails[0]).setValue(userModel);
+    }
     private void Register(){
         final String pass = Binding.profilePassEdit.getText().toString();
+        Log.e("tag", email);
         Log.e("tag", pass);
         firebaseAuth.createUserWithEmailAndPassword(email, pass)
                 .addOnCompleteListener(ProfileActivity.this, new OnCompleteListener<AuthResult>() {
@@ -118,64 +144,18 @@ public class ProfileActivity extends base {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
                             Log.e("tag", "성공");
-                            RegisterImg();
-                            Toast(ProfileActivity.this, "성공");
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                            uid = firebaseUser.getUid();
-                            UserModel userModel = new UserModel();
-                            userModel.email = email;
-                            userModel.kakao = user;
-                            userModel.uid = uid;
-                            userModel.nick = Binding.profileNickEdit.getText().toString();
-                            userModel.info = Binding.profileInfoEdit.getText().toString();
-                            userModel.pass = pass;
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                            SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-                            SimpleDateFormat formats = new SimpleDateFormat("yyyyMMHH_mmss");
-                            Date date = new Date();
-                            String getDate = format.format(date);
-                            String getTime = formatter.format(date);
-                            userModel.date = getDate;
-                            userModel.time = getTime;
-                            String filename = formats.format(date) + ".png";
-                            userModel.img = "profile/" + filename;
-
-                            String[] emails = email.split("@");
-                            databaseReference.child(emails[0]).setValue(userModel);
-
                         } else if (task.isCanceled()){
                             Toast(ProfileActivity.this, "취소되었습니다.");
                             Log.e("tag", "실패");
                         } else if (task.isComplete()){
                             Log.e("tag", "완료");
-                            RegisterImg();
-                            Toast(ProfileActivity.this, "성공");
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                            uid = firebaseUser.getUid();
-                            UserModel userModel = new UserModel();
-                            userModel.email = email;
-                            userModel.kakao = user;
-                            userModel.uid = uid;
-                            userModel.nick = Binding.profileNickEdit.getText().toString();
-                            userModel.info = Binding.profileInfoEdit.getText().toString();
-                            userModel.pass = pass;
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                            SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-                            Date date = new Date();
-                            String getDate = format.format(date);
-                            String getTime = formatter.format(date);
-                            userModel.date = getDate;
-                            userModel.time = getTime;
-                            String filename = format.format(date) + ".png";
-                            userModel.img = "profile/" + filename;
-                            String[] emails = email.split("@");
-                            databaseReference.child(emails[0]).setValue(userModel);
                         }
                     }
                 });
+        profileRegister(firebaseAuth, pass);
     }
     private void RegisterImg(){
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMHH_mmss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_mmss");
         Date now = new Date();
         filename = format.format(now) + ".png";
         StorageReference storageReference = storage.getReferenceFromUrl("gs://commission-b4348.appspot.com").child("images/" + filename);

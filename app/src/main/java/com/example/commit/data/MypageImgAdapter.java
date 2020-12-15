@@ -23,53 +23,37 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 
 
-public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.MyViewHolder> {
-    private ArrayList<String> title;
+public class MypageImgAdapter extends RecyclerView.Adapter<MypageImgAdapter.MyViewHolder> {
     private ArrayList<String> img;
-    private ArrayList<String> nick;
-    private ArrayList<String> ssum;
     Context context;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
 
-    public BoardAdapter(ArrayList<String> title, ArrayList<String> img, ArrayList<String> nick, ArrayList<String> ssum, Context context){
-        this.title = title;
+    public MypageImgAdapter(ArrayList<String> img, Context context){
         this.img = img;
-        this.nick = nick;
-        this.ssum = ssum;
         this.context = context;
     }
 
     public class MyViewHolder extends  RecyclerView.ViewHolder{
         public ImageView imageView;
-        public ImageView ssumnail;
-        public TextView TextTitle;
-        public TextView nick;
 
         public MyViewHolder(View view){
             super(view);
-            this.imageView = view.findViewById(R.id.board_item_img);
-            this.ssumnail = view.findViewById(R.id.board_item_ssum);
-            this.TextTitle = view.findViewById(R.id.board_item_title);
-            this.nick = view.findViewById(R.id.board_item_nick);
+            this.imageView = view.findViewById(R.id.mypage_profile_content_items);
         }
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View holderView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.board_item, viewGroup, false);
+        View holderView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.mypage_profile_content_item, viewGroup, false);
         MyViewHolder myViewHolder = new MyViewHolder(holderView);
         return myViewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, final int i) {
-        myViewHolder.TextTitle.setText(this.title.get(i));
-        myViewHolder.nick.setText(this.nick.get(i));
         StorageReference imgRef = storageReference.child(this.img.get(i));
-        StorageReference ssumRef = storageReference.child(this.ssum.get(i));
-        getImg(ssumRef, myViewHolder);
         getImg(imgRef, myViewHolder);
     }
     private void getImg(StorageReference Ref, final MyViewHolder myViewHolder){
@@ -91,6 +75,6 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.MyViewHolder
 
     @Override
     public int getItemCount() {
-        return title.size();
+        return img.size();
     }
 }

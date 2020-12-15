@@ -1,7 +1,6 @@
 package com.example.commit.data;
 
-public class Board {
-    
+public class WeakBoard {
     public String uid;
     public String title;
     public String img;
@@ -12,5 +11,5 @@ public class Board {
     public String time;
     public String nick;
     public String ssum;
-    public int like;
+    public Boolean like;
 }

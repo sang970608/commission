@@ -51,7 +51,7 @@ public class CommisionDialog {
                     Toast.makeText(context, "비어있는 란이 있습니다.", Toast.LENGTH_SHORT).show();
                 } else {
                     String[] emails = email.split("@");
-                    databaseReference.child(emails[0]).child("commission").push().setValue(commision);
+                    databaseReference.child("UID").child(emails[0]).child("commission").push().setValue(commision);
                     dlg.dismiss();
                 }
             }
